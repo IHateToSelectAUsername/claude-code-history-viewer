@@ -298,11 +298,18 @@ function App() {
 
   const handleTokenStatClick = useCallback(
     (stats: SessionTokenStats) => {
-      const session = sessions.find(
-        (s) =>
+      // `session_id` holds the full file path; for resumed sessions the
+      // filename UUID is the only stable match against an in-message sessionId.
+      const session = sessions.find((s) => {
+        if (
           s.actual_session_id === stats.session_id ||
           s.session_id === stats.session_id
-      );
+        ) {
+          return true;
+        }
+        const fileUuid = s.file_path?.split(/[\\/]/).pop()?.replace(/\.jsonl$/, "");
+        return fileUuid === stats.session_id;
+      });
 
       if (session) {
         handleSessionSelect(session);

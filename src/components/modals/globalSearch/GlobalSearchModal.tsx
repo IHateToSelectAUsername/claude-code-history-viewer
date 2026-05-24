@@ -152,12 +152,19 @@ export const GlobalSearchModal = ({
     // Navigate to selected result
     const handleSelectResult = useCallback(
         async (result: GlobalSearchResult) => {
+            // A JSONL file's name encodes the canonical session UUID, but `session_id`
+            // stores the full file path and `actual_session_id` reflects the first
+            // real message's sessionId — which can differ when a session was resumed
+            // (file contains messages from multiple sessionIds). Match against the
+            // filename UUID too, otherwise resumed sessions never match.
+            const matchSession = (s: ClaudeSession, id: string): boolean => {
+                if (s.session_id === id || s.actual_session_id === id) return true;
+                const fileUuid = s.file_path?.split(/[\\/]/).pop()?.replace(/\.jsonl$/, "");
+                return fileUuid === id;
+            };
+
             try {
-                let targetSession = sessions.find(
-                    (s) =>
-                        s.session_id === result.sessionId ||
-                        s.actual_session_id === result.sessionId,
-                );
+                let targetSession = sessions.find((s) => matchSession(s, result.sessionId));
 
                 if (targetSession) {
                     if (result.uuid) navigateToMessage(result.uuid);
@@ -181,11 +188,7 @@ export const GlobalSearchModal = ({
                                 : { projectPath: project.path, excludeSidechain },
                         );
 
-                        targetSession = projectSessions.find(
-                            (s) =>
-                                s.session_id === result.sessionId ||
-                                s.actual_session_id === result.sessionId,
-                        );
+                        targetSession = projectSessions.find((s) => matchSession(s, result.sessionId));
 
                         if (targetSession) {
                             if (result.uuid) navigateToMessage(result.uuid);
