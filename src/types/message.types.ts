@@ -161,6 +161,8 @@ export interface BaseClaudeMessage {
   timestamp: string;
   /** Project name (extracted from file path during search) */
   projectName?: string;
+  /** Absolute path to the source JSONL file (populated by search results) */
+  filePath?: string;
   isSidechain?: boolean;
   content?: string | ContentItem[] | Record<string, unknown>;
 }

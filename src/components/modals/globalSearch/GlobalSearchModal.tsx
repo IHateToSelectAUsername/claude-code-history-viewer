@@ -586,6 +586,20 @@ export const GlobalSearchModal = ({
                                                                 <span className="text-xs text-muted-foreground">
                                                                     {formatTimestamp(result.timestamp)}
                                                                 </span>
+                                                                {result.filePath && (() => {
+                                                                    const fileUuid = result.filePath
+                                                                        .split(/[\\/]/)
+                                                                        .pop()
+                                                                        ?.replace(/\.jsonl$/, "") ?? "";
+                                                                    return (
+                                                                        <span
+                                                                            className="text-2xs text-muted-foreground/70 font-mono"
+                                                                            title={result.filePath}
+                                                                        >
+                                                                            {fileUuid.slice(0, 8)}
+                                                                        </span>
+                                                                    );
+                                                                })()}
                                                             </div>
                                                             {(() => {
                                                                 const sessionName = getSessionName(result);

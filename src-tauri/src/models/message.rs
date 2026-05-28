@@ -172,6 +172,11 @@ pub struct ClaudeMessage {
     /// Provider identifier (claude, codex, opencode)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub provider: Option<String>,
+    /// Absolute path to the source JSONL file (populated by search; resumed
+    /// sessions can spread the same `sessionId` across multiple files, so this
+    /// is the only way for the UI to know exactly which file a hit came from).
+    #[serde(rename = "filePath", skip_serializing_if = "Option::is_none")]
+    pub file_path: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -349,6 +354,7 @@ mod tests {
             compact_metadata: None,
             microcompact_metadata: None,
             provider: None,
+            file_path: None,
         };
 
         let serialized = serde_json::to_string(&message).unwrap();
@@ -394,6 +400,7 @@ mod tests {
             compact_metadata: None,
             microcompact_metadata: None,
             provider: None,
+            file_path: None,
         };
 
         let serialized = serde_json::to_string(&message).unwrap();

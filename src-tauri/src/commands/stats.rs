@@ -3174,6 +3174,7 @@ impl TryFrom<RawLogEntry> for ClaudeMessage {
             compact_metadata: log_entry.compact_metadata,
             microcompact_metadata: log_entry.microcompact_metadata,
             provider: None,
+            file_path: None,
         })
     }
 }
@@ -3542,6 +3543,7 @@ mod tests {
             compact_metadata: None,
             microcompact_metadata: None,
             provider: provider.map(std::string::ToString::to_string),
+            file_path: None,
         }
     }
 
@@ -3849,6 +3851,7 @@ mod tests {
             compact_metadata: None,
             microcompact_metadata: None,
             provider: None,
+            file_path: None,
         };
 
         let usage = extract_token_usage(&msg);
@@ -3900,6 +3903,7 @@ mod tests {
             compact_metadata: None,
             microcompact_metadata: None,
             provider: None,
+            file_path: None,
         };
 
         let usage = extract_token_usage(&msg);
@@ -3949,6 +3953,7 @@ mod tests {
             compact_metadata: None,
             microcompact_metadata: None,
             provider: None,
+            file_path: None,
         };
 
         let usage = extract_token_usage(&msg);
@@ -3994,6 +3999,7 @@ mod tests {
             compact_metadata: None,
             microcompact_metadata: None,
             provider: None,
+            file_path: None,
         };
 
         let usage = extract_token_usage(&msg);
@@ -4037,6 +4043,7 @@ mod tests {
             compact_metadata: None,
             microcompact_metadata: None,
             provider: None,
+            file_path: None,
         };
 
         let usage = extract_token_usage(&msg);

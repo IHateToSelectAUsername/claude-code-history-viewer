@@ -10,7 +10,9 @@ import {
   Columns,
   Search,
   Archive,
+  FolderOpen,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { TooltipButton } from "@/shared/TooltipButton";
 import { useAppStore } from "@/store/useAppStore";
@@ -128,14 +130,62 @@ export const Header = ({ analyticsActions, analyticsComputed, updater }: HeaderP
       </div>
 
       {/* Center: Quick Stats (when session selected) */}
-      {selectedSession && computed.isMessagesView && (
-        <div className="hidden lg:flex items-center gap-2">
-          <Terminal className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-2xs text-muted-foreground font-mono">
-            {selectedSession.actual_session_id.slice(0, 8)}
-          </span>
-        </div>
-      )}
+      {selectedSession && computed.isMessagesView && (() => {
+        // Derive the canonical file UUID from the JSONL filename. Resumed sessions
+        // store the parent's sessionId as `actual_session_id`, so showing that
+        // would be misleading — the filename UUID is the only stable identifier
+        // tied to the on-disk file.
+        const filePath = selectedSession.file_path ?? "";
+        const fileUuid =
+          filePath.split(/[\\/]/).pop()?.replace(/\.jsonl$/, "") ?? "";
+        const shortUuid = fileUuid.slice(0, 8) || selectedSession.actual_session_id.slice(0, 8);
+
+        const handleCopyPath = async () => {
+          if (!filePath) return;
+          try {
+            await navigator.clipboard.writeText(filePath);
+            toast.success(t("header.copyFilePathSuccess", "File path copied"));
+          } catch {
+            toast.error(t("header.copyFilePathError", "Could not copy file path"));
+          }
+        };
+
+        const handleReveal = async () => {
+          if (!filePath) return;
+          try {
+            const { revealItemInDir } = await import("@tauri-apps/plugin-opener");
+            await revealItemInDir(filePath);
+          } catch {
+            toast.error(t("session.revealError", "Could not reveal file"));
+          }
+        };
+
+        return (
+          <div className="hidden lg:flex items-center gap-1">
+            <Terminal className="w-3.5 h-3.5 text-muted-foreground" />
+            <button
+              type="button"
+              onClick={handleCopyPath}
+              title={filePath || t("header.copyFilePathTooltip", "Click to copy file path")}
+              className="text-2xs text-muted-foreground hover:text-foreground font-mono px-1.5 py-0.5 rounded hover:bg-muted transition-colors"
+              aria-label={t("header.copyFilePathTooltip", "Click to copy file path")}
+            >
+              {shortUuid}
+            </button>
+            {filePath && (
+              <button
+                type="button"
+                onClick={handleReveal}
+                title={t("header.revealInFinderTooltip", "Reveal file in Finder")}
+                className="p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-colors"
+                aria-label={t("header.revealInFinderTooltip", "Reveal file in Finder")}
+              >
+                <FolderOpen className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1">
